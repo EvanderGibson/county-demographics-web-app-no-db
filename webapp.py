@@ -18,7 +18,10 @@ def render_fact():
     state = request.args.get('state')
     county = county_most_under_18(state)
     fact = "In " + state + ", the county with the highest percentage of under 18 year olds is " + county + "."
-    return render_template('home.html', state_options=states, funFact=fact)
+    education = max_education(state)
+    fact2 = "Also in " + state + ", the county with the highest percentage of people with a Bachelores degree is " + str(education) + "."
+    
+    return render_template('home.html', state_options=states, funFact=fact, funFact2=fact2)
     
 def get_state_options():
     """Return the html code for the drop down menu.  Each option is a state abbreviation from the demographic data."""
@@ -45,7 +48,19 @@ def county_most_under_18(state):
                 highest = c["Age"]["Percent Under 18 Years"]
                 county = c["County"]
     return county
-
+def max_education(state):
+    """Return the name of a county in the given state with the highest percent of under 18 year olds."""
+    with open('demographics.json') as demographics_data:
+        education = json.load(demographics_data)
+    highest=0
+    education2 = ""
+    for e in education:
+        if e["State"] == state:
+            if e["Education"]["Bachelor's Degree or Higher"] > highest:
+                highest = e["Education"]["Bachelor's Degree or Higher"]
+                education2 = e["Education"]["Bachelor's Degree or Higher"]
+                print(education2)
+    return education2
 def is_localhost():
     """ Determines if app is running on localhost or not
     Adapted from: https://stackoverflow.com/questions/17077863/how-to-see-if-a-flask-app-is-being-run-on-localhost
@@ -56,4 +71,5 @@ def is_localhost():
 
 
 if __name__ == '__main__':
-    app.run(debug=False) # change to False when running in production
+    app.run(debug=True) # change to False when running in production
+
